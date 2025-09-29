@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from functools import wraps
 import sqlite3
 import os
 import cloudinary
@@ -11,12 +12,24 @@ app.secret_key = "clave_secreta_super_segura"
 # =========================
 # CONFIGURACIÓN CLOUDINARY
 # =========================
-# 👉 CONFIGURA TUS CREDENCIALES DE CLOUDINARY AQUÍ
 cloudinary.config(
     cloud_name = "dyjzrfowo",
     api_key = "521452815374687",
     api_secret = "-Lxjs6EoS1LwC64BkpD7cRyWizg"
 )
+
+# =========================
+# MIDDLEWARE DE PROTECCIÓN
+# =========================
+def login_required(f):
+    """Decorador para proteger rutas que requieren autenticación"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("admin"):
+            flash("Debes iniciar sesión para acceder a esta página", "error")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # =========================
 # BASE DE DATOS
@@ -54,38 +67,41 @@ def index():
 # Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Si ya está autenticado, redirigir al admin
+    if session.get("admin"):
+        return redirect(url_for("admin"))
+    
     if request.method == "POST":
         usuario = request.form["usuario"]
         password = request.form["password"]
         if usuario == "hosanna" and password == "18.2025":
             session["admin"] = True
+            flash("¡Bienvenida al panel de administración!", "success")
             return redirect(url_for("admin"))
         else:
-            flash("Usuario o contraseña incorrectos")
+            flash("Usuario o contraseña incorrectos", "error")
     return render_template("login.html")
 
 # Logout
 @app.route("/logout")
 def logout():
     session.clear()
+    flash("Sesión cerrada correctamente", "success")
     return redirect(url_for("index"))
 
-# Panel de administración
+# Panel de administración - AHORA PROTEGIDO
 @app.route("/admin")
+@login_required
 def admin():
-    if not session.get("admin"):
-        return redirect(url_for("login"))
     conn = get_db_connection()
     productos = conn.execute("SELECT * FROM productos").fetchall()
     conn.close()
     return render_template("admin.html", productos=productos)
 
-# Subir producto CON CLOUDINARY
+# Subir producto - PROTEGIDO
 @app.route("/add", methods=["POST"])
+@login_required
 def add():
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-
     nombre = request.form["nombre"]
     descripcion = request.form["descripcion"]
     precio = request.form["precio"]
@@ -93,20 +109,17 @@ def add():
 
     if imagen:
         try:
-            # 🔥 SUBIR IMAGEN A CLOUDINARY
             upload_result = cloudinary.uploader.upload(
                 imagen,
-                folder="hosanna_productos",  # Carpeta en Cloudinary
+                folder="hosanna_productos",
                 transformation=[
-                    {'width': 800, 'height': 800, 'crop': 'limit'},  # Optimización
+                    {'width': 800, 'height': 800, 'crop': 'limit'},
                     {'quality': 'auto', 'fetch_format': 'auto'}
                 ]
             )
             
-            # Obtener URL de la imagen subida
             imagen_url = upload_result['secure_url']
             
-            # Guardar en base de datos
             conn = get_db_connection()
             conn.execute(
                 "INSERT INTO productos (nombre, descripcion, precio, imagen) VALUES (?, ?, ?, ?)",
@@ -119,24 +132,17 @@ def add():
             
         except Exception as e:
             flash(f"Error al subir imagen: {str(e)}", "error")
-            return redirect(url_for("admin"))
 
     return redirect(url_for("admin"))
 
-# Eliminar producto
+# Eliminar producto - PROTEGIDO
 @app.route("/delete/<int:id>", methods=["POST"])
+@login_required
 def delete(id):
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-
     conn = get_db_connection()
     producto = conn.execute("SELECT * FROM productos WHERE id = ?", (id,)).fetchone()
     
     if producto:
-        # Opcional: Eliminar imagen de Cloudinary
-        # Para esto necesitarías guardar el public_id de la imagen
-        # Por ahora solo eliminamos de la BD
-        
         conn.execute("DELETE FROM productos WHERE id = ?", (id,))
         conn.commit()
         flash("Producto eliminado correctamente", "success")
@@ -144,12 +150,10 @@ def delete(id):
     conn.close()
     return redirect(url_for("admin"))
 
-# Editar producto (NUEVA FUNCIONALIDAD)
+# Editar producto - PROTEGIDO
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
+@login_required
 def edit(id):
-    if not session.get("admin"):
-        return redirect(url_for("login"))
-    
     conn = get_db_connection()
     
     if request.method == "POST":
@@ -159,7 +163,6 @@ def edit(id):
         imagen = request.files.get("imagen")
         
         if imagen and imagen.filename:
-            # Subir nueva imagen a Cloudinary
             try:
                 upload_result = cloudinary.uploader.upload(
                     imagen,
@@ -171,7 +174,6 @@ def edit(id):
                 )
                 imagen_url = upload_result['secure_url']
                 
-                # Actualizar con nueva imagen
                 conn.execute(
                     "UPDATE productos SET nombre=?, descripcion=?, precio=?, imagen=? WHERE id=?",
                     (nombre, descripcion, precio, imagen_url, id)
@@ -179,7 +181,6 @@ def edit(id):
             except Exception as e:
                 flash(f"Error al actualizar imagen: {str(e)}", "error")
         else:
-            # Actualizar sin cambiar imagen
             conn.execute(
                 "UPDATE productos SET nombre=?, descripcion=?, precio=? WHERE id=?",
                 (nombre, descripcion, precio, id)
@@ -190,7 +191,6 @@ def edit(id):
         flash("Producto actualizado exitosamente", "success")
         return redirect(url_for("admin"))
     
-    # GET: Mostrar formulario de edición
     producto = conn.execute("SELECT * FROM productos WHERE id = ?", (id,)).fetchone()
     conn.close()
     
