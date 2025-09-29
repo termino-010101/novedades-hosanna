@@ -1,2 +1,0 @@
-# novedades-hosanna
-# novedades-hosanna

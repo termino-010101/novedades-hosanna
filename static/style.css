@@ -1,0 +1,388 @@
+/* ============ Variables & Tipografía ============ */
+:root {
+  --c-bg1: #fdf6fb;
+  --c-bg2: #ffeef8;
+  --c-accent: #e91e63;
+  --c-accent-alt: #d5007d;
+  --c-text: #2c2c2c;
+  --c-text-light: #555;
+  --shadow1: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.6);
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lexend', sans-serif;
+  background: linear-gradient(135deg, var(--c-bg1), var(--c-bg2));
+  min-height: 100vh;
+  color: var(--c-text);
+  overflow-x: hidden;
+}
+
+/* Wrapper para controlar capas decorativas */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ HEADER ============ */
+.site-header {
+  width: 100%;
+  padding: 5rem 1rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at center, rgba(233,30,99,0.2), transparent 60%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.site-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  margin: 0;
+  color: var(--c-accent);
+}
+
+.site-header p {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  color: var(--c-text-light);
+}
+
+/* ============ CATÁLOGO ============ */
+.catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  padding: 4rem 1.5rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.producto {
+  position: relative;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeInUp 0.7s ease forwards;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.producto-inner {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.producto-inner:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 40px rgba(233, 30, 99, 0.2);
+}
+
+.producto-img-wrapper {
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.producto img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.producto-inner:hover img {
+  transform: scale(1.05) rotate(1deg);
+}
+
+.producto-info {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.producto-info h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--c-text);
+}
+
+.producto-info p {
+  color: var(--c-text-light);
+  font-size: 1rem;
+  flex-grow: 1;
+  margin-top: 0.5rem;
+}
+
+.precio {
+  font-weight: 600;
+  font-size: 1.6rem;
+  background: linear-gradient(90deg, var(--c-accent), var(--c-accent-alt));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+}
+
+/* ============ BOTÓN ============ */
+.btn-whatsapp {
+  display: inline-block;
+  text-align: center;
+  padding: 0.8rem 1.8rem;
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent-alt));
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.btn-whatsapp::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-3px);
+}
+
+.btn-whatsapp:hover::after {
+  opacity: 1;
+}
+
+/* ============ BOTÓN WHATSAPP FIJO ============ */
+.whatsapp-fixed {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--c-accent);
+  color: white;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 6px 20px rgba(233, 30, 99, 0.3);
+  transition: transform 0.3s;
+}
+
+.whatsapp-fixed:hover {
+  transform: scale(1.1);
+}
+
+/* ============ FOOTER ============ */
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.9rem;
+  color: var(--c-text-light);
+  margin-top: 4rem;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 3rem 1rem 2rem;
+  }
+  .site-header h1 {
+    font-size: 2.6rem;
+  }
+  .site-header p {
+    font-size: 1rem;
+  }
+  .producto-info h3 {
+    font-size: 1.3rem;
+  }
+  .producto-info p {
+    font-size: 0.95rem;
+  }
+  .precio {
+    font-size: 1.4rem;
+  }
+  .btn-whatsapp {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
+  }
+  .whatsapp-fixed {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.5rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+.site-header h1 {
+  font-family: 'Great Vibes', cursive;
+  font-size: 4rem;
+  margin: 0;
+  color: var(--c-accent);
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 2px rgba(233, 30, 99, 0.4);
+  line-height: 1.1;
+}
+
+@media (max-width: 480px) {
+  .site-header h1 {
+    font-size: 2.8rem;       /* Tamaño más pequeño para móviles */
+    letter-spacing: 1px;     /* Menos espacio entre letras */
+    text-shadow: 1px 1px 3px rgba(233, 30, 99, 0.5); /* Un poco más visible */
+    padding: 0 1rem;         /* Un poco de padding lateral para no pegarse a bordes */
+    word-break: break-word;  /* Que rompa en palabras si es necesario */
+  }
+}
+/* Buscador limpio */
+.search-container {
+  margin: 1rem auto 2rem;
+  max-width: 400px;
+  text-align: center;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 30px;
+  border: 2px solid var(--c-accent);
+  font-size: 1rem;
+  font-family: 'Lexend', sans-serif;
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+  transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--c-accent-alt);
+  box-shadow: 0 4px 25px rgba(213, 0, 125, 0.5);
+}
+
+/* Botón admin */
+.btn-admin {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.6rem;
+  background: linear-gradient(135deg, var(--c-accent), var(--c-accent-alt));
+  color: white;
+  font-weight: 700;
+  border-radius: 30px;
+  text-decoration: none;
+  font-family: 'Lexend', sans-serif;
+  transition: background 0.3s ease;
+}
+
+.btn-admin:hover {
+  background: linear-gradient(135deg, var(--c-accent-alt), var(--c-accent));
+}
+
+/* Modal mejorado */
+#modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1rem;
+  flex-direction: column;
+}
+
+#modal-img {
+  max-width: 90vw;
+  max-height: 80vh;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s ease;
+  cursor: zoom-out;
+}
+
+#modal-img:hover {
+  transform: scale(1.05);
+}
+
+#modal-caption {
+  color: white;
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  font-family: 'Playfair Display', serif;
+  max-width: 90vw;
+  text-align: center;
+}
+
+#modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+  transition: color 0.2s ease;
+  z-index: 10000;
+}
+
+#modal-close:hover {
+  color: var(--c-accent);
+}
+/* ... todo tu CSS que me diste antes ... */
+
+/* Botón buscar */
+.search-container button {
+  margin-left: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--c-accent);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Lexend', sans-serif;
+  transition: background 0.3s ease;
+}
+
+.search-container button:hover {
+  background: var(--c-accent-alt);
+}
+
+
+
